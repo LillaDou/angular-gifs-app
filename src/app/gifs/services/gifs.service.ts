@@ -19,6 +19,7 @@ export class GifService {
 
     // Aquí almacenaremos el estado de los trending gifs
     trendingGifs = signal<Gif[]>( [] );
+    trendingGifsLoading = signal(true);
 
 
     constructor() {
@@ -38,6 +39,7 @@ export class GifService {
         }).subscribe( (resp) => {
             const gifs = GifMapper.mapGiphyItemsToGifArray(resp.data);
             this.trendingGifs.set(gifs);
+            this.trendingGifsLoading.set(false);
             console.log(gifs);
         } );
 

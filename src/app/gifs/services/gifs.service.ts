@@ -3,9 +3,11 @@
 
 
 import { HttpClient } from '@angular/common/http';
-import { inject, Injectable } from '@angular/core';
+import { inject, Injectable, signal } from '@angular/core';
 import { environment } from '@environments/environment';
 import type { GiphyResponse } from '../interfaces/giphy.interfaces';//Ponemos el 'type' para ayudar en la transpilación
+import { Gif } from '../interfaces/gif.interface';
+import { GifMapper } from '../mapper/gif.mapper';
 
 @Injectable({providedIn: 'root'})
 export class GifService {
@@ -14,6 +16,11 @@ export class GifService {
     //Aquí inyectamos al cliente, en el app.config.ts lo proveemos
     private http = inject(HttpClient);
 
+
+    // Aquí almacenaremos el estado de los trending gifs
+    trendingGifs = signal<Gif[]>( [] );
+
+
     constructor() {
         this.loadTrendingGifs();
     }
@@ -21,12 +28,18 @@ export class GifService {
     loadTrendingGifs() {
 
         // Cogemos el tipado de GiphyResponse de nuestras interfaces. 
+        // Siempre que hagamos una petición http .get, .push, .patch... no se va a disparar hasta que nos suscibamos a 
+        // la petición.
         this.http.get<GiphyResponse>(`${ environment.giphyUrl }/gifs/trending`, {
             params: {
                 api_key: environment.giphyApiKey,
                 limit: 20,
             },
-        });
+        }).subscribe( (resp) => {
+            const gifs = GifMapper.mapGiphyItemsToGifArray(resp.data);
+            this.trendingGifs.set(gifs);
+            console.log(gifs);
+        } );
 
     }
 }

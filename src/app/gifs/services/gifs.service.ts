@@ -3,12 +3,29 @@
 
 
 import { HttpClient } from '@angular/common/http';
-import { inject, Injectable, signal } from '@angular/core';
+import { computed, inject, Injectable, signal } from '@angular/core';
 import { environment } from '@environments/environment';
 import type { GiphyResponse } from '../interfaces/giphy.interfaces';//Ponemos el 'type' para ayudar en la transpilación
-import { Gif } from '../interfaces/gif.interface';
+import type { Gif } from '../interfaces/gif.interface';
 import { GifMapper } from '../mapper/gif.mapper';
-import { map } from 'rxjs';
+import { map, tap } from 'rxjs';
+
+
+// {
+//     'goku': [gif1, gif2, gif3],
+//     'saitama': [gif1, gif2, gif3],
+// }
+//* Record<string, Gif[]>
+
+//En Typescript existe un tipado llamado Record que nos ayudará a guardar nuestras búsquedas en la página. 
+//Funciona de la siguiente manera: 
+//Hemos creado un objeto con llaves {} dinámicas, donde aparece la búsqueda ('goku') y el resultado (arreglo de gifs).
+//Debajo aparece la siguiente búsqueda con la misma estructura. Esto es justamente lo que sucede con este tipado. 
+//Por ello, indicamos que el objeto dinámico de tipo Record será:
+// - string : 'goku' (la búsqueda)
+// - Gif[]: [gif1, gif2...] (el arreglo de gifs que es de tipo Gif[])
+//Aplicaremos esta idea más abajo...
+
 
 @Injectable({providedIn: 'root'})
 export class GifService {
@@ -21,6 +38,11 @@ export class GifService {
     // Aquí almacenaremos el estado de los trending gifs
     trendingGifs = signal<Gif[]>( [] );
     trendingGifsLoading = signal(true);
+
+    searchHistory = signal<Record<string, Gif[]>>({});
+    searchHistoryKeys = computed( () => Object.keys(this.searchHistory() ) );
+    //Cada vez que la señal de searchHistory() cambie, automáticamente se volverá a computar la señal de
+    //searchHistoryKeys()
 
 
     constructor() {
@@ -60,7 +82,16 @@ export class GifService {
             map( ({data}) => data ),
             map( (items) => GifMapper.mapGiphyItemsToGifArray(items) ),
 
-            //TODO: Historial
+            //Historial
+            tap( (items) => {
+                this.searchHistory.update( (history) => ({
+                    ...history,
+                    [query.toLowerCase()]: items,
+                }) )
+                //Hemos utilizado un paréntesis con unas llaves ( {} ) para indicar que queremos un
+                //return implícito de un nuevo objeto.
+            } )
+    
         )
         //El .pipe nos permite encadenar funcionamientos especiales a las Observables.
         //El tap es un método de RXJS que sirve para disparar efectos secundarios.

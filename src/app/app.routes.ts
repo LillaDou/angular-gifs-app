@@ -23,6 +23,13 @@ export const routes: Routes = [
                     import('./gifs/pages/search-page/search-page')
             },
             {
+                //Para mandar argumentos dinámicos, ponemos ':' + el nombre de lo que queramos recibir.
+                //Podemos añadir todos los argumentos que queramos: history/:query/:name/:title...
+                path: 'history/:query',
+                loadComponent: () => 
+                    import('./gifs/pages/gif-history/gif-history')
+            },
+            {
                 path: '**',
                 redirectTo: 'trending'
             }

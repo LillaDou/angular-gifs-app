@@ -3,7 +3,7 @@
 
 
 import { HttpClient } from '@angular/common/http';
-import { computed, inject, Injectable, signal } from '@angular/core';
+import { computed, effect, inject, Injectable, signal } from '@angular/core';
 import { environment } from '@environments/environment';
 import type { GiphyResponse } from '../interfaces/giphy.interfaces';//Ponemos el 'type' para ayudar en la transpilación
 import type { Gif } from '../interfaces/gif.interface';
@@ -26,6 +26,11 @@ import { map, Observable, tap } from 'rxjs';
 // - Gif[]: [gif1, gif2...] (el arreglo de gifs que es de tipo Gif[])
 //Aplicaremos esta idea más abajo...
 
+const loadFromLocalStorage = () => {
+    const history = localStorage.getItem('gifsHistory');
+    return history ? JSON.parse(history) : {};
+}
+
 
 @Injectable({providedIn: 'root'})
 export class GifService {
@@ -39,7 +44,7 @@ export class GifService {
     trendingGifs = signal<Gif[]>( [] );
     trendingGifsLoading = signal(true);
 
-    searchHistory = signal<Record<string, Gif[]>>({});
+    searchHistory = signal<Record<string, Gif[]>>(loadFromLocalStorage());
     searchHistoryKeys = computed( () => Object.keys(this.searchHistory() ) );
     //Cada vez que la señal de searchHistory() cambie, automáticamente se volverá a computar la señal de
     //searchHistoryKeys()
@@ -48,6 +53,11 @@ export class GifService {
     constructor() {
         this.loadTrendingGifs();
     }
+
+    saveToLocalStorage = effect( () => {
+        localStorage.setItem('gifsHistory', JSON.stringify( this.searchHistory() ));
+    });
+
 
     loadTrendingGifs() {
 
@@ -110,12 +120,13 @@ export class GifService {
         //     console.log({search: gifs});
         // } )
 
-    }
+    };
 
 
     getHistoryGifs( query: string ): Gif[] {
         return this.searchHistory()[query] ?? [];
-    }
+    };
+
 }
 
 // El httpClient nos permite hacer la petición get, put, delete, patch... 

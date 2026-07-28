@@ -8,6 +8,7 @@ import { environment } from '@environments/environment';
 import type { GiphyResponse } from '../interfaces/giphy.interfaces';//Ponemos el 'type' para ayudar en la transpilación
 import { Gif } from '../interfaces/gif.interface';
 import { GifMapper } from '../mapper/gif.mapper';
+import { map } from 'rxjs';
 
 @Injectable({providedIn: 'root'})
 export class GifService {
@@ -30,7 +31,7 @@ export class GifService {
 
         // Cogemos el tipado de GiphyResponse de nuestras interfaces. 
         // Siempre que hagamos una petición http .get, .push, .patch... no se va a disparar hasta que nos suscibamos a 
-        // la petición.
+        // la petición. Si no hay suscripción, no se hace la petición.
         this.http.get<GiphyResponse>(`${ environment.giphyUrl }/gifs/trending`, {
             params: {
                 api_key: environment.giphyApiKey,
@@ -47,17 +48,36 @@ export class GifService {
 
 
     searchGifs( query: string ) {
-        this.http.get<GiphyResponse>( `${ environment.giphyUrl }/gifs/search`, {
+        return this.http.get<GiphyResponse>( `${ environment.giphyUrl }/gifs/search`, {
             params: {
                 api_key: environment.giphyApiKey,
                 limit: 20,
                 q: query,
             },
-        } ).subscribe( (resp) => {
-            const gifs = GifMapper.mapGiphyItemsToGifArray(resp.data);
-
-            console.log({search: gifs});
         } )
+        .pipe(
+            // tap( resp => console.log({tap: resp}))
+            map( ({data}) => data ),
+            map( (items) => GifMapper.mapGiphyItemsToGifArray(items) ),
+
+            //TODO: Historial
+        )
+        //El .pipe nos permite encadenar funcionamientos especiales a las Observables.
+        //El tap es un método de RXJS que sirve para disparar efectos secundarios.
+        //El .map permite barrer cada uno de los elementos de mi respuesta y regresar una transformación
+        //totalmente diferente. Se pueden concatenar varios métodos dentro del pipe, como vemos ahora con el map
+        //Con esto, lo que estamos haciendo es transformar la respuesta del http.get, para que el resultado sea 
+        //el arreglo de gifs(creado en el mapper) y que se vea en nuestra aplicación (en el search-page creamos
+        //una señal llamada gifs. Esta será utilizada dentro del método de searchGifs, al que nos vamos a suscribir
+        // y dentro del cual llamaremos esa señal gifs(). La respuesta a esta señal será la respuesta a este método
+        //con el .set. Luego queda llamar la señal gifs() en el html correspondiente. )
+
+
+        // .subscribe( (resp) => {
+        //     const gifs = GifMapper.mapGiphyItemsToGifArray(resp.data);
+
+        //     console.log({search: gifs});
+        // } )
 
     }
 }

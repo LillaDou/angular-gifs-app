@@ -18,7 +18,7 @@ export class GifMapper {
     }
 }
 
-// Hemos creado este mapper para poder transformar data a información que necesitamos. 
+//* Hemos creado este mapper para poder transformar data a la información que necesitamos. 
 // En este caso, nos interesa transformar toda la información de los Giphy Interfaces (GiphyItem) de la
-// API de Giphy a un objeto basado en nuestra interfaz de gif.interface 
+// API de Giphy a un objeto más pequeño basado en nuestra interfaz de gif.interface 
 // 

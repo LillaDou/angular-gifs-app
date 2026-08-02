@@ -1,21 +1,5 @@
-import { Component, inject, signal } from '@angular/core';
-import { GifList } from '../../components/gif-list/gif-list';
+import { Component, ElementRef, inject, signal, viewChild } from '@angular/core';
 import { GifService } from '../../services/gifs.service';
-
-// const imageUrls: string[] = [
-//     "https://flowbite.s3.amazonaws.com/docs/gallery/square/image.jpg",
-//     "https://flowbite.s3.amazonaws.com/docs/gallery/square/image-1.jpg",
-//     "https://flowbite.s3.amazonaws.com/docs/gallery/square/image-2.jpg",
-//     "https://flowbite.s3.amazonaws.com/docs/gallery/square/image-3.jpg",
-//     "https://flowbite.s3.amazonaws.com/docs/gallery/square/image-4.jpg",
-//     "https://flowbite.s3.amazonaws.com/docs/gallery/square/image-5.jpg",
-//     "https://flowbite.s3.amazonaws.com/docs/gallery/square/image-6.jpg",
-//     "https://flowbite.s3.amazonaws.com/docs/gallery/square/image-7.jpg",
-//     "https://flowbite.s3.amazonaws.com/docs/gallery/square/image-8.jpg",
-//     "https://flowbite.s3.amazonaws.com/docs/gallery/square/image-9.jpg",
-//     "https://flowbite.s3.amazonaws.com/docs/gallery/square/image-10.jpg",
-//     "https://flowbite.s3.amazonaws.com/docs/gallery/square/image-11.jpg"
-// ];
 
 @Component({
   selector: 'app-trending-page',
@@ -31,7 +15,17 @@ export default class TrendingPage {
   // En caso de que sí haya, va a regresar e inyectar esa instancia aquí con la información que tenga. 
   // Si no haya una instancia, creará una nueva por mi.
 
-  
+  scrollDivRef = viewChild<ElementRef>('groupDiv');
+  // El viewChild o viewChildren nos van a ayudar a tomar información o referencias de partes
+  // del HTML. El viewChild es solo para un elemento, el viewChildren cuando tenemos más de un 
+  // elemento
+
+  onScroll( event: Event ) {
+    const scrollDiv = this.scrollDivRef()?.nativeElement;
+
+    console.log(scrollDiv);
+
+  }
 
 
 }

@@ -20,13 +20,13 @@ import { GifService } from '../../services/gifs.service';
 @Component({
   selector: 'app-trending-page',
   imports: [
-    GifList,
+  
   ],
   templateUrl: './trending-page.html',
 })
 export default class TrendingPage {
 
-  GifService = inject( GifService );
+  gifService = inject( GifService );
   // Con esto, Angular va a verificar si hay una instancia del GifSevice ya creada. 
   // En caso de que sí haya, va a regresar e inyectar esa instancia aquí con la información que tenga. 
   // Si no haya una instancia, creará una nueva por mi.

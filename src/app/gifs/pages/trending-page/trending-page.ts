@@ -15,15 +15,22 @@ export default class TrendingPage {
   // En caso de que sí haya, va a regresar e inyectar esa instancia aquí con la información que tenga. 
   // Si no haya una instancia, creará una nueva por mi.
 
-  scrollDivRef = viewChild<ElementRef>('groupDiv');
+  scrollDivRef = viewChild<ElementRef<HTMLDivElement>>('groupDiv');
   // El viewChild o viewChildren nos van a ayudar a tomar información o referencias de partes
   // del HTML. El viewChild es solo para un elemento, el viewChildren cuando tenemos más de un 
   // elemento
 
   onScroll( event: Event ) {
     const scrollDiv = this.scrollDivRef()?.nativeElement;
+    if ( !scrollDiv ) return;
 
-    console.log(scrollDiv);
+    const scrollTop = scrollDiv.scrollTop; // Posición que tenemos de scroll en un momento concreto
+    const clientHeight = scrollDiv.clientHeight; // Cuánto espacio tiene la pantalla (viewport/viewpoint)
+    const scrollHeight = scrollDiv.scrollHeight;//Tamaño máximo de scroll posible
+
+    // console.log({scrollTotal: scrollTop +  clientHeight, scrollHeight})
+    const isAtBotton = scrollTop + clientHeight + 300 >= scrollHeight;
+    console.log({isAtBotton})
 
   }
 

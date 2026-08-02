@@ -29,9 +29,12 @@ export default class TrendingPage {
     const scrollHeight = scrollDiv.scrollHeight;//Tamaño máximo de scroll posible
 
     // console.log({scrollTotal: scrollTop +  clientHeight, scrollHeight})
-    const isAtBotton = scrollTop + clientHeight + 300 >= scrollHeight;
-    console.log({isAtBotton})
+    const isAtBottom = scrollTop + clientHeight + 300 >= scrollHeight;
+    console.log({isAtBottom})
 
+    if( isAtBottom ) {
+      this.gifService.loadTrendingGifs();
+    }
   }
 
 

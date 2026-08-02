@@ -42,7 +42,8 @@ export class GifService {
 
     // Aquí almacenaremos el estado de los trending gifs
     trendingGifs = signal<Gif[]>( [] );
-    trendingGifsLoading = signal(true);
+    trendingGifsLoading = signal(false);
+    private trendingPage = signal(0);
 
     // [gif, gif, gif],[gif, gif, gif],[gif, gif, gif],
     trendingGifGroup = computed<Gif[][]>( () => {
@@ -71,6 +72,10 @@ export class GifService {
 
     loadTrendingGifs() {
 
+        if( this.trendingGifsLoading() ) return;
+
+        this.trendingGifsLoading.set(true);
+
         // Cogemos el tipado de GiphyResponse de nuestras interfaces. 
         // Siempre que hagamos una petición http .get, .push, .patch... no se va a disparar hasta que nos suscibamos a 
         // la petición. Si no hay suscripción, no se hace la petición.
@@ -78,12 +83,18 @@ export class GifService {
             params: {
                 api_key: environment.giphyApiKey,
                 limit: 20,
+                offset: this.trendingPage() * 20,
             },
         }).subscribe( (resp) => {
             const gifs = GifMapper.mapGiphyItemsToGifArray(resp.data);
-            this.trendingGifs.set(gifs);
+            this.trendingGifs.update( currentGifs => [
+                ...currentGifs, 
+                ...gifs
+            ]);
+            this.trendingPage.update( (currentPage) => currentPage + 1 );
             this.trendingGifsLoading.set(false);
         } );
+
 
     }
 
